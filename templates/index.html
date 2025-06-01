@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>熊熊環球旅行社 - 首頁</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="static/style.css">
+
+    <!-- 跑馬燈樣式 -->
+    <style>
+        .marquee-container {
+            width: 100%;
+            background-color: #fff7e6;
+            overflow: hidden;
+            white-space: nowrap;
+            border-top: 2px solid #ffa500;
+            border-bottom: 2px solid #ffa500;
+        }
+
+        .marquee-text {
+            display: inline-block;
+            padding-left: 100%;
+            font-size: 1.1em;
+            color: #d35400;
+            animation: marquee 12s linear infinite;
+        }
+
+        @keyframes marquee {
+            from {
+                transform: translateX(0%);
+            }
+            to {
+                transform: translateX(-100%);
+            }
+        }
+
+        .marquee-container:hover .marquee-text {
+            animation-play-state: paused;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container navbar">
+            <div class="logo">
+                <i class="fas fa-paw"></i>
+                熊熊環球旅行社
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">首頁</a></li>
+                <li><a href="{{ url_for('tours') }}">旅遊行程</a></li>
+                <li><a href="{{ url_for('exchange') }}">匯率分析</a></li>
+                <li><a href="{{ url_for('ai_assistant') }}">AI助手</a></li>
+                <li><a href="{{ url_for('rpg') }}">RPG互動網頁</a></li> 
+            </ul>
+        </div>
+    </header>
+
+    <!-- 跑馬燈公告 -->
+    <div class="marquee-container">
+        <div class="marquee-text">
+            🎉 熊熊環球旅行社——專業規劃，帶您輕鬆玩遍世界！ ✈️🌏
+        </div>
+    </div>
+    
+    <section class="hero">
+        <div class="container hero-content">
+            <h1>熊熊帶路 暢遊無阻</h1>
+            <p>專業旅遊規劃結合即時匯率分析，AI嚮導提供個性化行程建議</p>           
+            <div class="date-time">
+                <span id="current-date"></span> | 
+                <span id="current-time"></span>
+            </div>
+        </div>
+    </section>
+    
+    <section class="container">
+        <div class="quick-links">
+            <div class="quick-link-card">
+                <i class="fas fa-map-marked-alt"></i>
+                <h3>旅遊行程</h3>
+                <p>探索我們精心規劃的旅遊套餐</p>
+                <a href="{{ url_for('tours') }}" class="btn">查看詳情</a>
+            </div>
+            
+            <div class="quick-link-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>匯率分析</h3>
+                <p>即時匯率追蹤與計算工具</p>
+                <a href="{{ url_for('exchange') }}" class="btn">查看詳情</a>
+            </div>
+            
+            <div class="quick-link-card">
+                <i class="fas fa-robot"></i>
+                <h3>AI助手</h3>
+                <p>智能旅遊規劃與建議</p>
+                <a href="{{ url_for('ai_assistant') }}" class="btn">查看詳情</a>
+            </div>
+        </div>
+    </section>
+    
+    <footer>
+        <div class="container">
+             <div class="footer-content">
+                <div class="footer-section">
+                    <h3>關於我們</h3>
+                    <p>熊熊環球旅行社成立於2025年，結合AI技術與旅遊服務，提供智慧匯率分析和最佳旅行方案。</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>聯絡我們</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> 台灣桃園市中壢區遠東路135號</p>
+                    <p><i class="fas fa-phone"></i> (03) 3456-7890</p>
+                    <p><i class="fas fa-envelope"></i> bear@globaltravel.com</p>
+                    <p><i class="fas fa-clock"></i> 週一至週五 09:00-18:00</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>技術特點</h3>
+                    <p><i class="fas fa-robot"></i> Google Gemini AI整合</p>
+                    <p><i class="fas fa-chart-line"></i> 實時匯率分析</p>
+                    <p><i class="fas fa-route"></i> 個性化行程規劃</p>
+                    <p><i class="fas fa-gamepad"></i> RPG互動旅遊體驗</p>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2025 熊熊環球旅行社. 版權所有 | 期末專題網站</p>
+                <p>技術：Python Flask + JavaScript + Gemini AI + PlotlyJS</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 保持日期時間功能
+        function updateDateTime() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('zh-TW', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                weekday: 'long'
+            });
+            
+            const timeStr = now.toLocaleTimeString('zh-TW');
+            
+            document.getElementById('current-date').textContent = dateStr;
+            document.getElementById('current-time').textContent = timeStr;
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <title>{{ package.name }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/style.css">
+    <style>
+        /* 主體內容保持原樣 */
+        :root {
+            --primary-color: #FF6B6B;
+            --secondary-color: #4ECDC4;
+            --accent-color: #FFE66D;
+            --dark-color: #292F36;
+            --light-color: #F7FFF7;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: var(--light-color);
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            width: 85%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        main {
+            padding: 2rem 0;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background-color: var(--accent-color);
+        }
+        
+        h2 {
+            color: var(--secondary-color);
+            font-size: 1.8rem;
+            margin: 2rem 0 1rem;
+            border-left: 5px solid var(--primary-color);
+            padding-left: 1rem;
+        }
+        
+        h3 {
+            color: var(--light-color);
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem;
+        }
+        
+        .day-tag {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: var(--dark-color);
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+        
+        ul {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin: 1rem 0;
+            transition: transform 0.3s;
+        }
+        
+        img:hover {
+            transform: scale(1.02);
+        }
+        
+        blockquote {
+            background-color: rgba(255, 107, 107, 0.1);
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .review-box {
+            border-left: 5px solid #c94f7c;
+            padding-left: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .review-rating {
+            margin: 0;
+        }
+        
+        .review-text {
+            margin: 5px 0 0;
+        }
+        
+        /* 表單和按鈕樣式 */
+        form {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        input[type="date"] {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        
+        button:hover {
+            background-color: #ff5252;
+            transform: translateY(-2px);
+        }
+        
+        /* 價格標籤 */
+        .price-tag {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            font-weight: bold;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .days-badge {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 導航欄使用style.css的樣式 -->
+    <header>
+        <div class="container navbar">
+            <div class="logo">
+                <i class="fas fa-paw"></i>
+                熊熊環球旅行社
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">首頁</a></li>
+                <li><a href="{{ url_for('tours') }}">旅遊行程</a></li>
+                <li><a href="{{ url_for('exchange') }}">匯率分析</a></li>
+                <li><a href="{{ url_for('ai_assistant') }}">AI助手</a></li>
+                <li><a href="{{ url_for('rpg') }}">RPG互動網頁</a></li> 
+            </ul>
+        </div>
+    </header>
+    
+    <main class="container">
+        <h1>{{ package.name }}</h1>
+        
+        <div class="price-tag">
+            {{ package.price }} 元
+            <div class="days-badge">{{ package.days }} 天行程</div>
+        </div>
+        
+        <h2>行程特色</h2>
+        <ul>
+            <li><i class="fas fa-check-circle" style="color: var(--secondary-color);"></i> 專業導遊全程陪同</li>
+            <li><i class="fas fa-check-circle" style="color: var(--secondary-color);"></i> 精選優質住宿</li>
+            <li><i class="fas fa-check-circle" style="color: var(--secondary-color);"></i> 深度文化體驗</li>
+            <li><i class="fas fa-check-circle" style="color: var(--secondary-color);"></i> 自由活動時間充足</li>
+        </ul>
+
+        <h2>詳細行程</h2>
+        {% for day in package.tour %}
+            <h3><span class="day-tag">第 {{ day.day }} 天</span> {{ day.title }}</h3>
+            <ul>
+                {% for activity in day.activities %}
+                    <li><i class="fas fa-map-marker-alt" style="color: var(--primary-color); margin-right: 0.5rem;"></i> {{ activity }}</li>
+                {% endfor %}
+            </ul>
+
+            {% if day.image %}
+                <img src="{{ day.image }}" alt="第 {{ day.day }} 天圖片">
+            {% else %}
+                <img src="{{ package.image }}" alt="預設圖片">
+            {% endif %}
+        {% endfor %}
+
+        <h2>費用說明</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div style="background-color: rgba(78, 205, 196, 0.1); padding: 1rem; border-radius: 8px;">
+                <h3 style="color: var(--secondary-color); margin-top: 0;"><i class="fas fa-check"></i> 費用包含</h3>
+                <ul style="list-style-type: none; padding-left: 0;">
+                    <li><i class="fas fa-check" style="color: var(--secondary-color); margin-right: 0.5rem;"></i> 機票</li>
+                    <li><i class="fas fa-check" style="color: var(--secondary-color); margin-right: 0.5rem;"></i> 住宿</li>
+                    <li><i class="fas fa-check" style="color: var(--secondary-color); margin-right: 0.5rem;"></i> 早餐</li>
+                    <li><i class="fas fa-check" style="color: var(--secondary-color); margin-right: 0.5rem;"></i> 導覽服務</li>
+                    <li><i class="fas fa-check" style="color: var(--secondary-color); margin-right: 0.5rem;"></i> 景點門票</li>
+                    <li><i class="fas fa-check" style="color: var(--secondary-color); margin-right: 0.5rem;"></i> 旅遊保險</li>
+                </ul>
+            </div>
+            <div style="background-color: rgba(255, 107, 107, 0.1); padding: 1rem; border-radius: 8px;">
+                <h3 style="color: var(--primary-color); margin-top: 0;"><i class="fas fa-times"></i> 費用不含</h3>
+                <ul style="list-style-type: none; padding-left: 0;">
+                    <li><i class="fas fa-times" style="color: var(--primary-color); margin-right: 0.5rem;"></i> 自費行程</li>
+                    <li><i class="fas fa-times" style="color: var(--primary-color); margin-right: 0.5rem;"></i> 個人消費</li>
+                    <li><i class="fas fa-times" style="color: var(--primary-color); margin-right: 0.5rem;"></i> 午晚餐</li>
+                    <li><i class="fas fa-times" style="color: var(--primary-color); margin-right: 0.5rem;"></i> 額外保險</li>
+                    <li><i class="fas fa-times" style="color: var(--primary-color); margin-right: 0.5rem;"></i> 行李超重費用</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>旅客評價</h2>
+        <div>
+            <p style="font-size: 18px; margin-bottom: 10px;">
+                <i class="fas fa-star" style="color: var(--accent-color);"></i> 
+                <strong>4.8 / 5</strong>（來自 <strong>129 位旅客</strong>）
+            </p>
+            
+            <blockquote>
+                <i class="fas fa-quote-left" style="color: var(--primary-color); opacity: 0.5;"></i> 
+                行程豐富，住宿也很棒，非常推薦！
+                <i class="fas fa-quote-right" style="color: var(--primary-color); opacity: 0.5;"></i>
+            </blockquote>
+
+            <div class="review-box">
+                <p class="review-rating">
+                    <i class="fas fa-star" style="color: var(--accent-color);"></i>
+                    <i class="fas fa-star" style="color: var(--accent-color);"></i>
+                    <i class="fas fa-star" style="color: var(--accent-color);"></i>
+                    <i class="fas fa-star" style="color: var(--accent-color);"></i>
+                    <i class="far fa-star" style="color: var(--accent-color);"></i>
+                </p>
+                <p class="review-text"><strong>王小姐：</strong> 導遊專業親切，風景超美！推薦！</p>
+            </div>
+
+            <div class="review-box">
+                <p class="review-rating">
+                    <i class="fas fa-star" style="color: var(--accent-color);"></i>
+                    <i class="fas fa-star" style="color: var(--accent-color);"></i>
+                    <i class="fas fa-star" style="color: var(--accent-color);"></i>
+                    <i class="fas fa-star" style="color: var(--accent-color);"></i>
+                    <i class="fas fa-star" style="color: var(--accent-color);"></i>
+                </p>
+                <p class="review-text"><strong>陳先生：</strong> 安排緊湊但不累，交通飯店都有顧到，讚！</p>
+            </div>
+        </div>
+
+        <h2 id="booking">立即預訂</h2>
+        <form action="/loading" method="GET" target="_blank">
+            <label for="date"><i class="far fa-calendar-alt"></i> 選擇出發日期：</label>
+            <input type="date" id="date" name="date" required>
+            <br><br>
+            <button type="submit"><i class="fas fa-paper-plane"></i> 我要預訂</button>
+        </form>
+        
+        <h2>常見問題</h2>
+        <div style="background-color: white; padding: 1.5rem; border-radius: 8px; box-shadow: var(--shadow);">
+            <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
+                <p style="font-weight: bold; margin-bottom: 0.5rem;">
+                    <i class="fas fa-question-circle" style="color: var(--secondary-color);"></i> 
+                    是否需要自備簽證？
+                </p>
+                <p style="margin: 0;">
+                    <i class="fas fa-info-circle" style="color: var(--primary-color);"></i> 
+                    是的，請提前申辦簽證。我們可提供簽證代辦服務，請聯繫客服。
+                </p>
+            </div>
+            
+            <div style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
+                <p style="font-weight: bold; margin-bottom: 0.5rem;">
+                    <i class="fas fa-question-circle" style="color: var(--secondary-color);"></i> 
+                    行程中是否包含保險？
+                </p>
+                <p style="margin: 0;">
+                    <i class="fas fa-info-circle" style="color: var(--primary-color);"></i> 
+                    本行程包含旅遊責任保險，建議旅客自行加保旅遊平安險。
+                </p>
+            </div>
+            
+            <div>
+                <p style="font-weight: bold; margin-bottom: 0.5rem;">
+                    <i class="fas fa-question-circle" style="color: var(--secondary-color);"></i> 
+                    可以更改或取消行程嗎？
+                </p>
+                <p style="margin: 0;">
+                    <i class="fas fa-info-circle" style="color: var(--primary-color);"></i> 
+                    出發前30天可免費取消，15-29天收取30%費用，14天內恕不退費。
+                </p>
+            </div>
+        </div>
+        
+        <p style="text-align: right; margin-top: 2rem;">
+            <a href="#top" style="text-decoration: none; color: var(--primary-color);">
+                <i class="fas fa-arrow-up"></i> 回到上方
+            </a>
+        </p>
+
+        
+    </main>
+        <!-- 固定在右下角的立即預訂按鈕 -->
+    <a href="#booking" class="floating-booking-btn">
+        <i class="fas fa-calendar-check"></i> 立即預訂
+    </a>
+
+    <style>
+        /* 固定在右下角的預訂按鈕 */
+        .floating-booking-btn {
+            position: fixed;
+            bottom: 50px;
+            right: 50px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+            z-index: 99;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .floating-booking-btn:hover {
+            background-color: #ff5252;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
+        }
+        
+        .floating-booking-btn i {
+            margin-right: 8px;
+        }
+        
+        /* 平滑滾動效果 */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* 響應式調整 */
+        @media (max-width: 768px) {
+            .floating-booking-btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+    <!-- 頁腳使用style.css的樣式 -->
+    <footer>
+        <div class="container">
+             <div class="footer-content">
+                <div class="footer-section">
+                    <h3>關於我們</h3>
+                    <p><i class="fas fa-paw"></i> 熊熊環球旅行社成立於2025年，結合AI技術與旅遊服務，提供智慧匯率分析和最佳旅行方案。</p>
+                    <div style="margin-top: 1rem;">
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>聯絡我們</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> 台灣桃園市中壢區遠東路135號</p>
+                    <p><i class="fas fa-phone"></i> (03) 3456-7890</p>
+                    <p><i class="fas fa-envelope"></i> bear@globaltravel.com</p>
+                    <p><i class="fas fa-clock"></i> 週一至週五 09:00-18:00</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>技術特點</h3>
+                    <p><i class="fas fa-robot"></i> Google Gemini AI整合</p>
+                    <p><i class="fas fa-chart-line"></i> 實時匯率分析</p>
+                    <p><i class="fas fa-route"></i> 個性化行程規劃</p>
+                    <p><i class="fas fa-gamepad"></i> RPG互動旅遊體驗</p>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2025 熊熊環球旅行社. 版權所有 | 期末專題網站</p>
+                <p><i class="fas fa-code"></i> 技術：Python Flask + JavaScript + Gemini AI + PlotlyJS</p>
+            </div>
+        </div>
+    </footer>
+    
+    
+    <script src="static/tours.js"></script>
+</body>
+</html>

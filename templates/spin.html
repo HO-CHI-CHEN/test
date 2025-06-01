@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>熊熊環球旅行社 - 瘋狂抽籤</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="static/style.css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden; /* 防止背景特效導致滾動條出現 */
+            position: relative;
+            background-color: #000; /* 黑色背景 */
+        }
+
+        .wheel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative; /* 確保輪盤在背景之上 */
+            z-index: 10; /* 高於背景特效 */
+            margin-top: 50px;
+        }
+
+        #rbutton {
+            margin-top: 30px;
+            padding: 15px 30px;
+            font-size: 20px;
+            background: linear-gradient(to right, #D4AF37, #F5D76E);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            position: relative;
+            z-index: 10;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        #rbutton:hover {
+            background: linear-gradient(to right, #F5D76E, #D4AF37);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.9);
+            transform: scale(1.05);
+        }
+
+        /* 背景熊雨特效 */
+        #bearRain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none; /* 允許點擊穿透 */
+        }
+
+        /* 確保內容可點擊 */
+        header, .wheel-container, footer {
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* 衝出的熊特效 */
+        .bursting-bear {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.1);
+            z-index: 100;
+            pointer-events: none;
+            opacity: 1;
+            transition: all 0.5s ease-out;
+            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.8));
+        }
+        
+        .bursting-bear img {
+            width: 100px;
+            height: 100px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <!-- 熊雨背景畫布 -->
+    <canvas id="bearRain"></canvas>
+
+    <!-- 衝出的熊元素 (預設隱藏) -->
+    <div class="bursting-bear" id="burstingBear" style="display: none;">
+        <img src="bear2.png" alt="衝出的熊">
+    </div>
+
+    <header>
+        <div class="container navbar">
+            <div class="logo">
+                <i class="fas fa-paw"></i>
+                熊熊環球旅行社
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">首頁</a></li>
+                <li><a href="{{ url_for('tours') }}">旅遊行程</a></li>
+                <li><a href="{{ url_for('exchange') }}">匯率分析</a></li>
+                <li><a href="{{ url_for('ai_assistant') }}">AI助手</a></li>
+                <li><a href="{{ url_for('rpg') }}">RPG互動網頁</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- 中央輪盤區塊 -->
+    <div class="wheel-container">
+        <canvas id="dartboard" width="1900" height="600"></canvas>
+        <button id="rbutton">抽輪盤!</button>
+    </div>
+
+    <!-- 輪盤腳本 -->
+    <script>
+        const canvas = document.getElementById("dartboard");
+        const ctx = canvas.getContext("2d");
+        
+        const options = [
+            { name: "紐西蘭", url: "http://127.0.0.1:5001/package-detail.html?id=6" },
+            { name: "韓國", url: "http://127.0.0.1:5001/package-detail.html?id=2" },
+            { name: "上海", url: "http://127.0.0.1:5001/package-detail.html?id=5" },
+            { name: "歐洲", url: "http://127.0.0.1:5001/package-detail.html?id=4" },
+            { name: "美國", url: "http://127.0.0.1:5001/package-detail.html?id=3" },
+            { name: "日本", url: "http://127.0.0.1:5001/package-detail.html?id=1" }
+        ];
+
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = 300;
+        const anglePerSegment = (2 * Math.PI) / options.length;
+
+        let dartAngle = 0;
+        let spinning = false;
+        let spinSpeed = 0;
+
+        // 黑金配色方案
+        const colors = [
+            "rgba(212, 175, 55, 0.8)", 
+            "rgba(22, 22, 22, 0.8)",
+            "rgba(245, 215, 110, 0.8)",
+            "rgba(44, 44, 44, 0.8)",
+            "rgba(180, 150, 50, 0.8)",
+            "rgba(33, 33, 33, 0.8)"
+        ];
+
+        function drawWheel() {
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(dartAngle);
+            
+            // 添加金色光暈背景
+            const gradient = ctx.createRadialGradient(0, 0, radius*0.3, 0, 0, radius*1.2);
+            gradient.addColorStop(0, "rgba(212, 175, 55, 0.3)");
+            gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
+            ctx.fillStyle = gradient;
+            ctx.fillRect(-radius*1.2, -radius*1.2, radius*2.4, radius*2.4);
+            
+            // 繪製輪盤扇形
+            for (let i = 0; i < options.length; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(radius * Math.cos(i * anglePerSegment), radius * Math.sin(i * anglePerSegment));
+                ctx.arc(0, 0, radius, i * anglePerSegment, (i + 1) * anglePerSegment);
+                ctx.closePath();
+
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = "#D4AF37";
+                ctx.stroke();
+            }
+
+            // 繪製文字
+            for (let i = 0; i < options.length; i++) {
+                ctx.save();
+                ctx.rotate(i * anglePerSegment + anglePerSegment / 2);
+                ctx.textAlign = "right";
+                ctx.textBaseline = "middle";
+                ctx.font = "bold 70px Arial";
+                
+                // 文字金色描邊效果
+                ctx.strokeStyle = "#D4AF37";
+                ctx.lineWidth = 5;
+                ctx.strokeText(options[i].name, radius - 15, 0);
+                
+                // 文字填充顏色（根據背景選擇對比色）
+                ctx.fillStyle = colors[i % colors.length].includes("22, 22, 22") || 
+                                 colors[i % colors.length].includes("33, 33, 33") || 
+                                 colors[i % colors.length].includes("44, 44, 44") ? 
+                                 "#D4AF37" : "#222";
+                ctx.fillText(options[i].name, radius - 15, 0);
+                
+                ctx.restore();
+            }
+
+            // 中心裝飾
+            ctx.beginPath();
+            ctx.arc(0, 0, 30, 0, Math.PI * 2);
+            ctx.fillStyle = "#000";
+            ctx.fill();
+            ctx.strokeStyle = "#D4AF37";
+            ctx.lineWidth = 5;
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function drawPointer() {
+            ctx.fillStyle = "#D4AF37";
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - radius + 40);
+            ctx.lineTo(centerX - 35, centerY - radius - 10);
+            ctx.lineTo(centerX + 35, centerY - radius - 10);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 指針裝飾
+            ctx.strokeStyle = "#000";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // 指針光暈效果
+            const gradient = ctx.createRadialGradient(centerX, centerY - radius - 5, 5, centerX, centerY - radius - 5, 30);
+            gradient.addColorStop(0, "rgba(212, 175, 55, 0.8)");
+            gradient.addColorStop(1, "rgba(212, 175, 55, 0)");
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - radius - 5, 30, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawWheel();
+            drawPointer();
+        }
+
+        // 熊衝出特效函數
+        function playBearBurstEffect() {
+            const bear = document.getElementById('burstingBear');
+            bear.style.display = 'block';
+            bear.style.opacity = '1';
+            bear.style.transform = 'translate(-50%, -50%) scale(0.1)';
+            
+            // 隨機選擇一個方向
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.max(window.innerWidth, window.innerHeight) * 1.2;
+            
+            // 重置位置
+            bear.style.left = '50%';
+            bear.style.top = '50%';
+            
+            // 強制重繪
+            bear.offsetHeight;
+            
+            // 開始動畫
+            setTimeout(() => {
+                bear.style.transform = `translate(
+                    ${Math.cos(angle) * distance}px, 
+                    ${Math.sin(angle) * distance}px
+                ) scale(2)`;
+                bear.style.opacity = '0';
+            }, 10);
+            
+            // 動畫結束後隱藏
+            setTimeout(() => {
+                bear.style.display = 'none';
+            }, 510);
+        }
+
+        let targetIndex = -1;
+        let targetAngle = 0;
+        let easing = 0.1;
+
+        function startSpin() {
+            if (spinning) return;
+
+            // 播放熊衝出特效
+            playBearBurstEffect();
+
+            targetIndex = Math.floor(Math.random() * options.length);
+            const segmentCenter = targetIndex * anglePerSegment + anglePerSegment / 2;
+            targetAngle = 2 * Math.PI * 5 - (segmentCenter + Math.PI / 2);
+
+            spinning = true;
+            document.getElementById("rbutton").disabled = true;
+        }
+
+        function spin() {
+            drawScene();
+
+            if (spinning) {
+                const diff = targetAngle - dartAngle;
+                if (diff > 0.01) {
+                    dartAngle += diff * easing;
+                } else {
+                    spinning = false;
+                    dartAngle = targetAngle;
+                    document.getElementById("rbutton").disabled = false;
+                    
+                    // 金色提示框
+                    const goldBox = document.createElement('div');
+                    goldBox.style.position = 'fixed';
+                    goldBox.style.top = '50%';
+                    goldBox.style.left = '50%';
+                    goldBox.style.transform = 'translate(-50%, -50%)';
+                    goldBox.style.backgroundColor = '#000';
+                    goldBox.style.border = '3px solid #D4AF37';
+                    goldBox.style.borderRadius = '10px';
+                    goldBox.style.padding = '20px';
+                    goldBox.style.color = '#D4AF37';
+                    goldBox.style.fontSize = '24px';
+                    goldBox.style.fontWeight = 'bold';
+                    goldBox.style.textAlign = 'center';
+                    goldBox.style.boxShadow = '0 0 20px rgba(212, 175, 55, 0.7)';
+                    goldBox.style.zIndex = '1000';
+                    goldBox.innerHTML = `決定了！將前往：<br><span style="font-size:32px;color:#F5D76E">${options[targetIndex].name}</span>`;
+                    
+                    document.body.appendChild(goldBox);
+                    
+                    setTimeout(() => {
+                        goldBox.style.transition = 'opacity 1s';
+                        goldBox.style.opacity = '0';
+                        setTimeout(() => {
+                            document.body.removeChild(goldBox);
+                            window.location.href = options[targetIndex].url;
+                        }, 1000);
+                    }, 2000);
+                }
+            }
+
+            requestAnimationFrame(spin);
+        }
+
+        document.getElementById("rbutton").addEventListener("click", startSpin);
+        drawScene();
+        spin();
+    </script>
+
+    <!-- 熊雨特效腳本 -->
+    <script>
+        const bearCanvas = document.getElementById("bearRain");
+        const bearCtx = bearCanvas.getContext("2d");
+
+        // 設定 Canvas 為全螢幕
+        bearCanvas.width = window.innerWidth;
+        bearCanvas.height = window.innerHeight;
+
+        // 熊圖案（使用 Emoji）
+        const bears = ['🐻', '🧸', '🐾', '🍯', '🐻‍❄️', '🐨'];
+        // 淺金色配色方案
+        const colorsRain = [
+            '#F5D76E', // 亮金色
+            '#FFDF00', // 金黃色
+            '#FFEC8B', // 淺金黃
+            '#FFD700', // 金色
+            '#E6C229', // 柔和金
+            '#FFFACD'  // 檸檬綢
+        ];
+
+        // 設定每列的初始位置
+        const fontSize = 24;
+        const columns = Math.floor(bearCanvas.width / fontSize);
+        const drops = Array(columns).fill(1);
+
+        function drawBearRain() {
+            // 半透明背景（製造拖尾效果）
+            bearCtx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            bearCtx.fillRect(0, 0, bearCanvas.width, bearCanvas.height);
+
+            for (let i = 0; i < drops.length; i++) {
+                const bear = bears[Math.floor(Math.random() * bears.length)];
+                // 隨機選擇淺金色系顏色，但增加亮金色的出現機率
+                const color = Math.random() > 0.3 ? 
+                    colorsRain[0] : // 40% 機率使用最亮的金色
+                    colorsRain[Math.floor(Math.random() * colorsRain.length)];
+                
+                const x = i * fontSize;
+                const y = drops[i] * fontSize;
+
+                bearCtx.fillStyle = color;
+                bearCtx.font = `bold ${fontSize}px serif`;
+                bearCtx.fillText(bear, x, y);
+
+                // 添加微弱的發光效果
+                bearCtx.shadowColor = color;
+                bearCtx.shadowBlur = 5;
+                bearCtx.fillText(bear, x, y);
+                bearCtx.shadowBlur = 0;
+
+                // 如果到底部或隨機條件，重置 Y 位置
+                if (y > bearCanvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        // 每 50 毫秒更新一次
+        setInterval(drawBearRain, 50);
+
+        // 視窗大小調整時重置 Canvas
+        window.addEventListener('resize', () => {
+            bearCanvas.width = window.innerWidth;
+            bearCanvas.height = window.innerHeight;
+        });
+    </script>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>關於我們</h3>
+                    <p>熊熊環球旅行社成立於2025年，結合AI技術與旅遊服務，提供智慧匯率分析和最佳旅行方案。</p>
+                </div>
+
+                <div class="footer-section">
+                    <h3>聯絡我們</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> 台灣桃園市中壢區遠東路135號</p>
+                    <p><i class="fas fa-phone"></i> (03) 3456-7890</p>
+                    <p><i class="fas fa-envelope"></i> bear@globaltravel.com</p>
+                    <p><i class="fas fa-clock"></i> 週一至週五 09:00-18:00</p>
+                </div>
+
+                <div class="footer-section">
+                    <h3>技術特點</h3>
+                    <p><i class="fas fa-robot"></i> Google Gemini AI整合</p>
+                    <p><i class="fas fa-chart-line"></i> 實時匯率分析</p>
+                    <p><i class="fas fa-route"></i> 個性化行程規劃</p>
+                    <p><i class="fas fa-gamepad"></i> RPG互動旅遊體驗</p>
+                </div>
+            </div>
+
+            <div class="copyright">
+                <p>&copy; 2025 熊熊環球旅行社. 版權所有 | 期末專題網站</p>
+                <p>技術：Python Flask + JavaScript + Gemini AI + PlotlyJS</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="exchangeData" style="display:none;">{{exchangeData}}</div>
+    <script src="static/tours.js"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>熊熊環球旅行社 - 匯率分析</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <header>
+        <div class="container navbar">
+            <div class="logo">
+                <i class="fas fa-paw""></i>
+                熊熊環球旅行社
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">首頁</a></li>
+                <li><a href="{{ url_for('tours') }}">旅遊行程</a></li>
+                <li><a href="{{ url_for('exchange') }}">匯率分析</a></li>
+                <li><a href="{{ url_for('ai_assistant') }}">AI助手</a></li>
+                <li><a href="{{ url_for('rpg') }}">RPG互動網頁</a></li> 
+            </ul>
+        </div>
+    </header>
+    
+    <section id="exchange" class="container">
+        <div class="section-title">
+            <h2>外幣匯率分析</h2>
+            <p>即時追蹤美金、日圓兌換台幣匯率走勢，掌握最佳轉換時機</p>
+        </div>
+        
+        <div class="stats-container">
+            <div id="exchange-chart"></div>
+        </div>
+        
+        <div class="currency-converter">
+            <h3 class="converter-title">外幣兌換計算機</h3>
+                <div class="converter-form">
+                    <div class="converter-group">
+                        <label>金額</label>
+                        <input type="number" id="amount" value="1000" min="1">
+                    </div>
+                    
+                    <div class="converter-group">
+                        <label>從</label>
+                        <select id="from-currency">
+                            <option value="TWD">新台幣 (TWD)</option>
+                            <option value="USD">美金 (USD)</option>
+                            <option value="JPY">日圓 (JPY)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="converter-group">
+                        <label>轉換為</label>
+                        <select id="to-currency">
+                            <option value="USD">美金 (USD)</option>
+                            <option value="JPY">日圓 (JPY)</option>
+                            <option value="TWD">新台幣 (TWD)</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn" onclick="convertCurrency()">換算</button>
+                </div>
+                
+                <div class="converter-result" id="conversion-result">
+                    1000 TWD = ?? USD
+                </div>
+        </div>
+    </section>
+    
+    <footer>
+        <div class="container">
+             <div class="footer-content">
+                <div class="footer-section">
+                    <h3>關於我們</h3>
+                    <p>熊熊環球旅行社成立於2025年，結合AI技術與旅遊服務，提供智慧匯率分析和最佳旅行方案。</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>聯絡我們</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> 台灣桃園市中壢區遠東路135號</p>
+                    <p><i class="fas fa-phone"></i> (03) 3456-7890</p>
+                    <p><i class="fas fa-envelope"></i> bear@globaltravel.com</p>
+                    <p><i class="fas fa-clock"></i> 週一至週五 09:00-18:00</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>技術特點</h3>
+                    <p><i class="fas fa-robot"></i> Google Gemini AI整合</p>
+                    <p><i class="fas fa-chart-line"></i> 實時匯率分析</p>
+                    <p><i class="fas fa-route"></i> 個性化行程規劃</p>
+                    <p><i class="fas fa-gamepad"></i> RPG互動旅遊體驗</p>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2025 熊熊環球旅行社. 版權所有 | 期末專題網站</p>
+                <p>技術：Python Flask + JavaScript + Gemini AI + PlotlyJS</p>
+            </div>
+        </div>
+    </footer>
+    <!-- <div id="exchangeData" >{{exchangeData}}</div>  因為要畫圖表就要有這行，將這行改成下方程式碼就不會有數據出現在下方的問題 -->
+    <div id="exchangeData" style="display:none;">{{exchangeData}}</div>
+    <script src="static/exchange.js"></script>
+</body>
+</html>
